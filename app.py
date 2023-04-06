@@ -126,7 +126,7 @@ def logout():
 
 
 def generate_image(prompt):
-    openai.api_key = "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"#None
+    openai.api_key = "KEYHERE"#None
     preprompt = "A children's storybook illustration for the following: "
 
     response = openai.Image.create(
@@ -142,7 +142,7 @@ def generate_image(prompt):
 
 def GPT3call(prompt):
     try:
-        api_key = "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"#None
+        api_key = "KEYHERE"#None
         openai.api_key = api_key
 
         if api_key:
