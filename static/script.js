@@ -74,7 +74,7 @@
 
                  write_intro_email_button(){
                          this.story_status = "generating";
-                         axios.post("http://127.0.0.1:5000/write_intro_email/"+this.username,
+                         axios.post(this.baseURL+"write_intro_email/"+this.username,
                              {book_title : this.book_title, characters : this.characters, storyline : this.storyline, ages : this.ages}
                          )
                          .then(res => {
@@ -92,7 +92,7 @@
 
 
                  save_story(){
-                         axios.post("http://127.0.0.1:5000/save/"+this.username,
+                         axios.post(this.baseURL+"save/"+this.username,
                              {pages : this.pages, book_title : this.book_title}
                          ).then(res => {
                              console.log(res)
@@ -112,7 +112,7 @@
                                        // this.discussion_id = discussion_id;
 
                                        let result = await axios({
-                                         url: 'http://localhost:5000/user',
+                                         url: this.baseURL+'/user',
                                          method: 'get'
                                        }).then(res => {
                                          return res.data.username
@@ -137,7 +137,7 @@
 
                  async getTasks(){
                       let result = await axios({
-                        url: 'http://127.0.0.1:5000/user',
+                        url: this.baseURL+'user',
                         method: 'get'
                       }).then(res => {
                         return res.data.username
@@ -145,7 +145,7 @@
                       this.username = result
                    username = this.username
                      axios({
-                       url: 'http://127.0.0.1:5000/fetch/'+username,
+                       url: this.baseURL+'fetch/'+username,
                        method: 'get'
                      })
                      .then(res => {
@@ -163,7 +163,7 @@
                         this.edit_email_prompt = email_prompt
                         this.edit_result = result
 
-                      axios.get("http://127.0.0.1:5000/" + type + "/" + id + "/" + this.username)
+                      axios.get(this.baseURL + type + "/" + id + "/" + this.username)
                       .then(res => {
                           console.log(res.data)
                           this.new_id = id // res.data.editmember['id']
@@ -177,7 +177,7 @@
 
 
                   onUpdateEmail(){
-                          axios.post("http://127.0.0.1:5000/update_task/" + "email" + "/" + this.username,
+                          axios.post(this.baseURL+"update_task/" + "email" + "/" + this.username,
                               { new_id : this.new_id, new_name : this.new_name, new_subject : this.new_subject, new_email_prompt : this.new_email_prompt, new_result : this.new_result}
                           )
                           .then(res => {
@@ -195,7 +195,7 @@
 
                  deleteTask(id){
                      if (window.confirm('Are you sure you want to delete this task?')) {
-                         axios.get("http://127.0.0.1:5000/delete_task/" + id + "/" + this.username)
+                         axios.get(this.baseURL+"delete_task/" + id + "/" + this.username)
                          .then(res => {
                              console.log(res)
                              alert('The task is gone 😮‍💨')
@@ -206,7 +206,7 @@
 
                  exportTask(id, type){
                      if (window.confirm('Export this task')) {
-                         axios.get("http://127.0.0.1:5000/export_task/" + type + "/" + id)
+                         axios.get(this.baseURL+"export_task/" + type + "/" + id)
                          .then(res => {
                              console.log(res)
                              alert('The task has been exported to a csv 😉')
@@ -216,7 +216,7 @@
                  },
 
              exportAll(){
-                     axios.get("http://127.0.0.1:5000/export_all/" + this.username)
+                     axios.get(this.baseURL+"export_all/" + this.username)
                      .then(res => {
                          console.log(res)
                          alert('The lists have been exported to a csv 😉')
@@ -226,7 +226,7 @@
 
          },
              mounted: function(){
-               this.getTasks()
                this.getStories()
+               this.getTasks()
              }
          })
