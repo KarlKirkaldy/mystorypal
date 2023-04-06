@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>MyStoryPal</title>
+	<link rel="stylesheet" href="../static/css/style.css">
+	<link rel="stylesheet" href="../static/css/main.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+	<link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+	<link href="https://fonts.googleapis.com/css?family=Work+Sans:400,500,700&display=swap" rel="stylesheet">
+	<link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'> </head>
+
+<body class="custom-google-fonts-enabled comps" id="13509-152853">
+	<div class="container" id="kanbanapp">
+		<nav class="js-nav nav-02  nav-02--sticky  nav-02--sticky--white  ">
+			<div class="container container--large">
+				<div class="nav-02__box">
+					<div class="nav-02__logo">
+						<!--<a class="nav-02__link" href="/" target="_self"> <img class="nav-02__logo_img" src="https://unicorn-cdn.b-cdn.net/501a88c9-c9e7-4ff2-8358-654a7b9ef059/" height="37" alt="Logo (13)" /> </a>-->
+						<h2>MyStoryPal</h2> </div>
+					<div class="nav-02__links js-menu">
+						<div class="nav-02__list_wrapper  ">
+							<ul class="nav-02__list nav-02__list--desktop">
+								<li class="nav-02__item">
+									<div class="buttons-set">
+										<ul class="buttons-set__list">
+											<li v-on:click="visible = 'createstory'" class="buttons-set__item"> <a data-stripe-product-id="" data-stripe-mode="payment" data-successful-payment-url="" data-cancel-payment-url="" class="button button--black-outline " href="#"><span class="button__text">Create Story</span></a></li>
+											<li v-on:click="visible = 'history'" class="buttons-set__item"> <a data-stripe-product-id="" data-stripe-mode="payment" data-successful-payment-url="" data-cancel-payment-url="" class="button button--black-outline " href="#"><span class="button__text">History</span></a></li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+							<ul class="nav-02__list nav-02__list--mobile">
+								<li class="nav-02__item">
+									<div class="buttons-set">
+										<ul class="buttons-set__list">
+											<li v-on:click="visible = 'createstory'" class="buttons-set__item"><a data-stripe-product-id="" data-stripe-mode="payment" data-successful-payment-url="" data-cancel-payment-url="" class="button button--accent-bg " href="#"><span class="button__text">Create Story</span></a></li>
+											<li v-on:click="visible = 'history'" class="buttons-set__item"><a data-stripe-product-id="" data-stripe-mode="payment" data-successful-payment-url="" data-cancel-payment-url="" class="button button--black-outline " href="#"><span class="button__text">History</span></a></li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</div>
+						<div class="nav-02__burger">
+							<button class="burger burger--black js-open-menu" type="button">
+								<div class="burger__box">
+									<div class="burger__inner"></div>
+								</div>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</nav>
+
+
+		<div v-for='storybook in storybooks'>
+
+
+				<div class="page-component__bg_image_box    bg-white-color  " id="slider-01-235791">
+					<div class="page-component__bg_overlay_box " style=""> </div>
+					<div class="page-component__wrapper" style="z-index: 117;padding-top:50px;padding-bottom:70px;">
+						<div class="slider-01  slider_with_dots_inside  graphics-image default-graphics-image">
+							<div class="container container--small">
+								<div class="title-box title-box--center">
+									<h2 class="heading "></h2>
+									<div class="title-box__text content_box "></div>
+								</div>
+							</div>
+							<div class="container slider-01__container">
+								<div class="slider">
+									<div class="slider__arrow slider__arrow--prev">
+										<button class="circle-button js-prev-arrow circle-button--icon circle-button--light-bg" type="button"><span class="icon"><svg width="24" height="17" viewBox="0 0 24 17" xmlns="http://www.w3.org/2000/svg"><g id="styleguide" fill="none" fill-rule="evenodd"><g id="Unicorn-Styleguide" transform="translate(-121 -2006)" fill-rule="nonzero" fill="#00396B" class="fill-main"><g id="Icons" transform="translate(55 1963)"><g id="arrow-pointing-to-right" transform="translate(66 43)"><path d="M23.673 7.688L16.531.336a1.094 1.094 0 0 0-1.578 0 1.173 1.173 0 0 0 0 1.625l5.237 5.39H1.116C.5 7.351 0 7.866 0 8.5s.5 1.149 1.116 1.149H20.19l-5.237 5.39a1.173 1.173 0 0 0 0 1.625 1.097 1.097 0 0 0 1.578 0l7.142-7.352a1.173 1.173 0 0 0 0-1.624z" id="Shape" transform="matrix(-1 0 0 1 24 0)"/></g></g></g></g></svg></span> </button>
+									</div>
+									<div class="slider__arrow slider__arrow--next">
+										<button class="circle-button js-next-arrow circle-button--icon circle-button--light-bg" type="button"><span class="icon"><svg viewBox="0 0 13 10" xmlns="http://www.w3.org/2000/svg"><path d="M12.823 4.164L8.954.182a.592.592 0 0 0-.854 0 .635.635 0 0 0 0 .88l2.836 2.92H.604A.614.614 0 0 0 0 4.604c0 .344.27.622.604.622h10.332L8.1 8.146a.635.635 0 0 0 0 .88.594.594 0 0 0 .854 0l3.869-3.982a.635.635 0 0 0 0-.88z" fill-rule="nonzero" fill="#00396B" class="fill-main"/></svg></span> </button>
+									</div>
+									<h2>{storybook['book_title']}</h2>
+									<ul id="bottom" class="slider__box js-slider" data-slider-config="{&quot;dots&quot;: true, &quot;infinite&quot;: true, &quot;speed&quot;: 500, &quot;fade&quot;: false, &quot;cssEase&quot;: &quot;ease&quot;, &quot;adaptiveHeight&quot;: false, &quot;lazyLoad&quot;: &quot;ondemand&quot;}">
+										<li v-for="(value, name, index) in storybook['pages']" class="slider__item">
+											<div class="posts-01__wrapper">
+												<div class="posts-01__item">
+													<div class="posts-01__img_box"> <img loading="lazy" :src="value['image']" alt="" class="posts-01__img"> </div>
+												</div>
+												<div class="posts-01__item">
+													<div class="posts-01__img_box">
+														<div class="posts-01__text">
+															<!--<h3 class="posts-01__title">Design Trends of March, 2023</h3>-->
+															<h3 class="posts-01__title">{index}.<p>{value['text']}</h3>
+															<p>{index}</p>
+															<div class="posts-01__info">Page {index}</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			</div>
+	</div>
+	<script type="application/javascript" src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	<script type="application/javascript" src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+	<script type="application/javascript" src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+	<script type="application/javascript" src="../static/script.js"></script>
+	<script type="application/javascript" src="../static/js/main.js"></script>
+	<script type="application/javascript" src="../static/sidebarscript.js"></script>
+</body>
+
+</html>
