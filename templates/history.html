@@ -82,17 +82,16 @@
 										<li v-for="(value, name, index) in storybook['pages']" class="slider__item">
 											<div class="posts-01__wrapper">
 												<div class="posts-01__item">
-													<div class="posts-01__img_box"> <img loading="lazy" :src="value['image']" alt="" class="posts-01__img"> </div>
+													<!--<div class="posts-01__img_box"></div>-->
+														<img :src="value['image']" alt="" class="posts-01__img">
 												</div>
 												<div class="posts-01__item">
-													<div class="posts-01__img_box">
 														<div class="posts-01__text">
 															<!--<h3 class="posts-01__title">Design Trends of March, 2023</h3>-->
 															<h3 class="posts-01__title">{index}.<p>{value['text']}</h3>
 															<p>{index}</p>
 															<div class="posts-01__info">Page {index}</div>
 														</div>
-													</div>
 												</div>
 											</div>
 										</li>
