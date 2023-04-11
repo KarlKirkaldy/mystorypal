@@ -37,7 +37,7 @@ CORS(app, resources={r'/*': {'origins': '*'}})
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = 'thisisasecretkey'
 
-app.config['MONGO_URI'] = 'mongodb+srv://sarthakrastogi:fva9P6N57kHhcXqh@cluster1.fudjn6p.mongodb.net/storybookdb?retryWrites=true&w=majority'
+app.config['MONGO_URI'] = 'mongodb+srv://kbkirkaldy:<Fy8CdQjZ9DKve4TV>@cluster0.fsnfxtf.mongodb.net/?retryWrites=true&w=majority'
 app.config['CORS_Headers'] = 'Content-Type'
 
 mongo = PyMongo(app)
@@ -126,7 +126,7 @@ def logout():
 
 
 def generate_image(prompt):
-    openai.api_key = "KEYHERE"#None
+    openai.api_key = "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"#None
     preprompt = "A children's storybook illustration for the following: "
 
     response = openai.Image.create(
@@ -142,7 +142,7 @@ def generate_image(prompt):
 
 def GPT3call(prompt):
     try:
-        api_key = "KEYHERE"#None
+        api_key = "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"#None
         openai.api_key = api_key
 
         if api_key:
