@@ -74,6 +74,7 @@
 
                  write_intro_email_button(){
                          this.story_status = "generating";
+                         console.log('writing');
                          axios.post(this.baseURL+"write_intro_email/"+this.username,
                              {book_title : this.book_title, characters : this.characters, storyline : this.storyline, ages : this.ages}
                          )
