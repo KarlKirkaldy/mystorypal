@@ -129,14 +129,16 @@ def generate_image(prompt):
     openai.api_key = os.environ['OPENAI_KEY']
     preprompt = "A children's storybook illustration for the following: "
 
-    response = openai.Image.create(
-        prompt=preprompt+prompt,
-        model="image-alpha-001",
-        size="256x256",
-        response_format="url"
-    )
-
-    return response["data"][0]["url"]
+    try:
+        response = openai.Image.create(
+            prompt=preprompt+prompt,
+            model="image-alpha-001",
+            size="256x256",
+            response_format="url"
+        )["data"][0]["url"]
+    except:
+        response = str(openai.key) + "https://images.app.goo.gl/9Dxu5L5LHm9k5ajf7"
+    return response
 
 
 
@@ -159,8 +161,8 @@ def GPT3call(prompt):
         else:
             response = "API key missing"
         return response
-    except:
-        return "There was a problem connecting to OpenAI. Check your key."
+    except Exception as e:
+        return "Page A: " + str(openai.key) + str(e) + "There was a problem connecting to OpenAI. Check your key."
 
 
 
