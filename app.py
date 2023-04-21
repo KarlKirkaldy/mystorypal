@@ -1,3 +1,4 @@
+from flask_session import Session
 from flask import *
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_cors import CORS
@@ -34,10 +35,14 @@ app = Flask(__name__)
 CORS(app, resources={r'/*': {'origins': '*'}})
 
 
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = 'thisisasecretkey'
 
-app.config['MONGO_URI'] = 'mongodb+srv://kbkirkaldy:<Fy8CdQjZ9DKve4TV>@cluster0.fsnfxtf.mongodb.net/?retryWrites=true&w=majority'
+app.config['MONGO_URI'] = 'mongodb+srv://kbkirkaldy:<Fy8CdQjZ9DKve4TV>@cluster0.fsnfxtf.mongodb.net/storybookdb?retryWrites=true&w=majority'
 app.config['CORS_Headers'] = 'Content-Type'
 
 mongo = PyMongo(app)
@@ -47,6 +52,7 @@ db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
 
+#os.environ['OPENAI_KEY'] = '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'
 
 
 login_manager = LoginManager()
@@ -101,8 +107,7 @@ def signin():
             if bcrypt.check_password_hash(user.password, form.password.data):
                 login_user(user)
                 print("logged in as", user.username)
-                global username
-                username = user.username
+                session['username'] = user.username
                 return redirect(url_for('kanbanhome', username=user.username))
     return render_template('signin.html', form=form)
 
@@ -166,27 +171,15 @@ def GPT3call(prompt):
 
 
 
-@app.route('/kanban/<username>')
+@app.route('/kanban')
 @login_required
-def kanbanhome(username):
-    with sqlite3.connect(dbfilename) as conn:
-        cur = conn.cursor()
-        cur.execute(f"select * from {RESULTS_TABLE} where username='{username}';")
-        taskslist = cur.fetchall()
-        templateslist = cur.fetchall()
-        return render_template("index.html")#, status='success', tasksjin=taskslist, listsjin=listslist)
+def kanbanhome():
+    return render_template("index.html")#, status='success', tasksjin=taskslist, listsjin=listslist)
 
-def get_name(username):
-    with sqlite3.connect(dbfilename) as conn:
-        cur = conn.cursor()
-        cur.execute(f"select first_name, last_name from user where username='{username}'")
-        row = cur.fetchall()
-        first_name, last_name = row[0][0], row[0][1]
-        return first_name, last_name
 
-@app.route('/write_intro_email/<username>', methods=['POST'])
+@app.route('/write_intro_email', methods=['POST'])
 @login_required
-def write_intro_email(username):
+def write_intro_email():
     if request.method == 'POST':
         post_data = request.get_json(silent=True)
         book_title = post_data.get('book_title')
@@ -224,9 +217,9 @@ def write_intro_email(username):
         })
 
 
-@app.route('/save/<username>', methods=['GET', 'POST'])
+@app.route('/save', methods=['GET', 'POST'])
 @login_required
-def save(username):
+def save():
     response_object = {'status': 'success'}
     if request.method == 'POST':
         post_data = request.get_json(silent=True)
@@ -234,45 +227,31 @@ def save(username):
         pages = post_data.get('pages')
 
 
-        result = mongodb.storybooks_collection.insert_one({'username' : username,
+        result = mongodb.storybooks_collection.insert_one({'username' : session['username'],
                                                            'book_title' : book_title,
                                                            'pages' : pages})
 
-        '''with sqlite3.connect(dbfilename) as conn:
-            cur = conn.cursor()
-            print("TYPE", type(result))
-            print("RESULT", result)
-            cur.execute(f'insert into {RESULTS_TABLE} (type, result, created_at, username) values ("{stype}", "{result}", CURRENT_TIMESTAMP, "{username}")')
-            conn.commit()'''
+
         print('saved successfully')
         response_object['message'] = "Successfully Added"
     return jsonify(response_object)
 
 
-@app.route('/history/<username>', methods=['GET', 'POST'])
+@app.route('/history', methods=['GET', 'POST'])
 @login_required
-def history(username):
+def history():
     return render_template("history.html")
 
 
 
 
-@app.route('/fetch_stories/<username>', methods=['GET'])
+@app.route('/fetch_stories', methods=['GET'])
 @login_required
-def fetchdiscussion(username):
-    print("FETCHING SQL DATA")
-    '''with sqlite3.connect(dbfilename) as conn:
-        cur = conn.cursor()
-        cur.execute(f"select * from {APPLICATIONS_TABLE} where username='{username}';")
-        taskslist = cur.fetchall()
-        cur.execute(f"select * from {MISSIONS_TABLE} where username='{username}';")
-        listslist = cur.fetchall()
-        '''
-
+def fetchdiscussion():
     try:
         print("FETCHING MONGODB DATA")
         storybooks = []
-        storybooks1 = mongodb.storybooks_collection.find({"username" : username})
+        storybooks1 = mongodb.storybooks_collection.find({"username" : session['username']})
         for storybook in storybooks1:
             storybook['_id'] = str(storybook['_id'])
             storybooks.append(storybook)
@@ -291,15 +270,15 @@ def fetchdiscussion(username):
 
 
 
-@app.route('/edit_task/<string:type>/<string:id>/<username>', methods=['GET', 'POST'])
+@app.route('/edit_task/<string:type>/<string:id>', methods=['GET', 'POST'])
 @login_required
-def edit(id, type, username):
+def edit(id, type):
     with sqlite3.connect(dbfilename) as conn:
         print("editing task with id: ", id)
         cur = conn.cursor()
-        if type == "email": cur.execute(f"select * from {EMAILS_TABLE} WHERE id = '{id}' and username = '{username}'")
-        elif type == "jobdesc": cur.execute(f"select * from {JOBDESCS_TABLE} WHERE id = '{id}' and username = '{username}'")
-        elif type == "template": cur.execute(f"select * from {TEMPLATES_TABLE} WHERE id = '{id}' and username = '{username}'")
+        if type == "email": cur.execute(f"select * from {EMAILS_TABLE} WHERE id = '{id}' and username = '{session['username']}'")
+        elif type == "jobdesc": cur.execute(f"select * from {JOBDESCS_TABLE} WHERE id = '{id}' and username = '{session['username']}'")
+        elif type == "template": cur.execute(f"select * from {TEMPLATES_TABLE} WHERE id = '{id}' and username = '{session['username']}'")
         row = cur.fetchone()
         print('fetching task complete')
     return jsonify({
@@ -308,9 +287,9 @@ def edit(id, type, username):
     })
 
 
-@app.route('/update_task/<string:type>/<username>', methods=['GET', 'POST'])
+@app.route('/update_task/<string:type>', methods=['GET', 'POST'])
 @login_required
-def update(username, type):
+def update(type):
     response_object = {'status': 'success'}
     if request.method == 'POST':
         with sqlite3.connect(dbfilename) as conn:
@@ -349,9 +328,9 @@ def update(username, type):
     return jsonify(response_object)
 
 
-@app.route('/delete_task/<string:id>/<username>', methods=['GET', 'POST'])
+@app.route('/delete_task/<string:id>', methods=['GET', 'POST'])
 @login_required
-def delete(id, username):
+def delete(id):
     with sqlite3.connect(dbfilename) as conn:
         print("deleting task with id", id)
         cur = conn.cursor()
@@ -394,28 +373,18 @@ def export(type, id):
     return jsonify(response_object)
 
 
-@app.route('/fetch/<username>', methods=['GET'])
-def fetchkanban(username):
+@app.route('/fetch', methods=['GET'])
+def fetchkanban():
     with sqlite3.connect(dbfilename) as conn:
         cur = conn.cursor()
-        cur.execute(f"select * from {RESULTS_TABLE} where username='{username}';")
+        cur.execute(f"select * from {RESULTS_TABLE} where username='{session['username']}';")
         resultslist = cur.fetchall()
         resultslist.reverse()
     result = jsonify({
         'status': 'success',
-        'results': resultslist,
-        'username': username
+        'results': resultslist
     })
     print(result)
-    return result
-
-
-@app.route('/user', methods=['GET'])
-def usern():
-    result = jsonify({
-        'status': 'success',
-        'username': username
-    })
     return result
 
 

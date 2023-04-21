@@ -48,7 +48,6 @@
                  //id: '',
                  template_content: '',
                  list: '',
-                 username: 'blank',
                  edit_id: '',
                  edit_type: '',
                  edit_result: '',
@@ -75,7 +74,7 @@
                  write_intro_email_button(){
                          this.story_status = "generating";
                          console.log('writing');
-                         axios.post(this.baseURL+"write_intro_email/"+this.username,
+                         axios.post(this.baseURL+"write_intro_email",
                              {book_title : this.book_title, characters : this.characters, storyline : this.storyline, ages : this.ages}
                          )
                          .then(res => {
@@ -93,7 +92,7 @@
 
 
                  save_story(){
-                         axios.post(this.baseURL+"save/"+this.username,
+                         axios.post(this.baseURL+"save",
                              {pages : this.pages, book_title : this.book_title}
                          ).then(res => {
                              console.log(res)
@@ -109,18 +108,8 @@
                                        // var urlPathParts = urlPath.split("/");
                                        // var discussion_id = urlPathParts[urlPathParts.length - 1];
                                        this.baseURL = window.location.protocol + "//" + window.location.host + "/";
-                                       // console.log(discussion_id, this.baseURL);
-                                       // this.discussion_id = discussion_id;
 
-                                       let result = await axios({
-                                         url: this.baseURL+'/user',
-                                         method: 'get'
-                                       }).then(res => {
-                                         return res.data.username
-                                       })
-                                       this.username = result
-                                    username = this.username
-                                    url = this.baseURL+'fetch_stories/' + username;
+                                    url = this.baseURL+'fetch_stories';
                                     console.log(url);
                                       axios({
                                         url: url,
@@ -137,16 +126,8 @@
 
 
                  async getTasks(){
-                      let result = await axios({
-                        url: this.baseURL+'user',
-                        method: 'get'
-                      }).then(res => {
-                        return res.data.username
-                      })
-                      this.username = result
-                   username = this.username
                      axios({
-                       url: this.baseURL+'fetch/'+username,
+                       url: this.baseURL+'fetch',
                        method: 'get'
                      })
                      .then(res => {
@@ -164,7 +145,7 @@
                         this.edit_email_prompt = email_prompt
                         this.edit_result = result
 
-                      axios.get(this.baseURL + type + "/" + id + "/" + this.username)
+                      axios.get(this.baseURL + type + "/" + id + "/")
                       .then(res => {
                           console.log(res.data)
                           this.new_id = id // res.data.editmember['id']
@@ -178,7 +159,7 @@
 
 
                   onUpdateEmail(){
-                          axios.post(this.baseURL+"update_task/" + "email" + "/" + this.username,
+                          axios.post(this.baseURL+"update_task/email",
                               { new_id : this.new_id, new_name : this.new_name, new_subject : this.new_subject, new_email_prompt : this.new_email_prompt, new_result : this.new_result}
                           )
                           .then(res => {
@@ -196,7 +177,7 @@
 
                  deleteTask(id){
                      if (window.confirm('Are you sure you want to delete this task?')) {
-                         axios.get(this.baseURL+"delete_task/" + id + "/" + this.username)
+                         axios.get(this.baseURL+"delete_task/" + id)
                          .then(res => {
                              console.log(res)
                              alert('The task is gone 😮‍💨')
@@ -217,7 +198,7 @@
                  },
 
              exportAll(){
-                     axios.get(this.baseURL+"export_all/" + this.username)
+                     axios.get(this.baseURL+"export_all")
                      .then(res => {
                          console.log(res)
                          alert('The lists have been exported to a csv 😉')
