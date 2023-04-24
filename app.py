@@ -42,7 +42,7 @@ Session(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = 'thisisasecretkey'
 
-app.config['MONGO_URI'] = mongodb+srv://<kbkirkaldy35>:<zonolite35>@cluster0.fsnfxtf.mongodb.net/kbkirkaldydb?retryWrites=true&w=majority
+app.config['MONGO_URI'] = mongodb+srv://kbkirkaldy35:zonolite35@cluster0.fsnfxtf.mongodb.net/kbkirkaldydb?retryWrites=true&w=majority
 app.config['CORS_Headers'] = 'Content-Type'
 
 mongo = PyMongo(app)
