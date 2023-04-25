@@ -42,7 +42,7 @@ Session(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = 'thisisasecretkey'
 
-app.config['MONGO_URI'] = mongodb+srv://kbkirkaldy35:zonolite35@cluster0.fsnfxtf.mongodb.net/kbkirkaldydb?retryWrites=true&w=majority
+app.config['MONGO_URI'] = "mongodb+srv://kbkirkaldy35:zonolite35@cluster0.fsnfxtf.mongodb.net/kbkirkaldydb?retryWrites=true&w=majority"
 app.config['CORS_Headers'] = 'Content-Type'
 
 mongo = PyMongo(app)
@@ -142,7 +142,7 @@ def generate_image(prompt):
             response_format="url"
         )["data"][0]["url"]
     except:
-        response = str(openai.key) + "https://images.app.goo.gl/9Dxu5L5LHm9k5ajf7"
+        response = "https://images.app.goo.gl/9Dxu5L5LHm9k5ajf7"
     return response
 
 
@@ -167,7 +167,7 @@ def GPT3call(prompt):
             response = "API key missing"
         return response
     except Exception as e:
-        return "Page A: " + str(openai.key) + str(e) + "There was a problem connecting to OpenAI. Check your key."
+        return "Page A: " + str(e) + "There was a problem connecting to OpenAI. Check your key."
 
 
 
