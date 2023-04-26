@@ -52,7 +52,7 @@ db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
 
-#os.environ['OPENAI_KEY'] = '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'
+#os.environ['OPENAI_KEY'] 
 
 
 login_manager = LoginManager()
