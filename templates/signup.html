@@ -84,33 +84,52 @@
                     </div>
                   </div>
                 </div>
+                <!--{% if current_user.is_authenticated %}
+                    You are already logged in.
+                {% else %}-->
+                {{ msg }}<br>
+                <form action="#" method="POST" id="signup-form">
+                  <input type="text" name="email" placeholder="Email" required /><br><br>
 
+                  <input type="password" name="password" placeholder="Password" required/><br><br>
 
-								<form method="POST" action="">
-						        <p><h3 class="text-center">{{ form.hidden_tag() }}</h3>
-						        <p><h3 class="text-center">{{ form.username }}</h3>
-						        <p><h3 class="text-center">{{ form.first_name }}</h3>
-						        <p><h3 class="text-center">{{ form.last_name }}</h3>
-						        <p><h3 class="text-center">{{ form.password }}</h3>
+                      <!-- Options to choose role -->
+                        <!-- Give the role ids in the value -->
+                    <!--<select name="interest" id="interest">
+                      <option value="mental_health">Mental Health</option>
+                      <option value="fitness">Fitness</option>
+                      <option value="sleep_hygeine">Sleep Hygeine</option>
+                    </select>-->
+                      <!--<input type="radio" name="options" id="option1" value=1 required> Admin </input>
+                  <input type="radio" name="options" id="option2" value=2> Teacher </input>
+                  <input type="radio" name="options" id="option3" value=3> Staff </input>
+                      <input type="radio" name="options" id="option3" value=4> Student </input><br>-->
+                  <br>
 
-                    <p><button class="button js-submit-button button--accent-bg " type="submit">
-                      <span class="button__text">{{ form.submit }}</span>
-                      <div class="spinner"></div>
-                      <div class="button__submit_success">
-                        <div class="button__success_circle "></div>
-                        <div>
-                          <svg class="button__success_tick" width="13" height="13" viewBox="0 0 13 13" xmlns="http://www.w3.org/2000/svg">
-                            <path class="button__success_tick_path" stroke="#FFF" d="M0 8l5.119 3.873L11.709.381" fill="none" fill-rule="evenodd" stroke-linecap="square" />
-                          </svg>
+                      <!--<button type="submit">Submit</button>-->
+                      <button class="button js-submit-button button--accent-bg " type="submit">
+                        <span class="button__text">Sign Up</span>
+                        <div class="spinner"></div>
+                        <div class="button__submit_success">
+                          <div class="button__success_circle "></div>
+                          <div>
+                            <svg class="button__success_tick" width="13" height="13" viewBox="0 0 13 13" xmlns="http://www.w3.org/2000/svg">
+                              <path class="button__success_tick_path" stroke="#FFF" d="M0 8l5.119 3.873L11.709.381" fill="none" fill-rule="evenodd" stroke-linecap="square" />
+                            </svg>
+                          </div>
                         </div>
-                      </div>
-                      <span class="icon">
-                        <svg viewBox="0 0 13 10" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M12.823 4.164L8.954.182a.592.592 0 0 0-.854 0 .635.635 0 0 0 0 .88l2.836 2.92H.604A.614.614 0 0 0 0 4.604c0 .344.27.622.604.622h10.332L8.1 8.146a.635.635 0 0 0 0 .88.594.594 0 0 0 .854 0l3.869-3.982a.635.635 0 0 0 0-.88z" fill-rule="nonzero" fill="#00396B" class="fill-main" />
-                        </svg>
-                      </span>
-                      </button>
-						    </form>
+                        <span class="icon">
+                          <svg viewBox="0 0 13 10" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12.823 4.164L8.954.182a.592.592 0 0 0-.854 0 .635.635 0 0 0 0 .88l2.836 2.92H.604A.614.614 0 0 0 0 4.604c0 .344.27.622.604.622h10.332L8.1 8.146a.635.635 0 0 0 0 .88.594.594 0 0 0 .854 0l3.869-3.982a.635.635 0 0 0 0-.88z" fill-rule="nonzero" fill="#00396B" class="fill-main" />
+                          </svg>
+                        </span>
+                        </button>
+
+                      <!-- Link for signin -->
+                      <!--<span>Already have an account?</span>
+                      <a href="/signin">Sign in</a>-->
+                </form>
+
               <div class="cta_form-04__bottom">
                 <h2 class="cta_form-04__bottom_heading "></h2>
                 <span class="cta_form-04__bottom_text ">By creating an account, you agree to our <a href="{{ url_for('privacypolicypage') }}" target="_self">Privacy Policy</a> and <a href="{{ url_for('tospage') }}" target="_self">Terms of Service</span></a>

@@ -37,7 +37,7 @@
 									<div class="buttons-set">
 										<ul class="buttons-set__list">
 											<li v-on:click="visible = 'createstory'" class="buttons-set__item"><a data-stripe-product-id="" data-stripe-mode="payment" data-successful-payment-url="" data-cancel-payment-url="" class="button button--accent-bg " :href="baseURL + '/kanban'"><span class="button__text">Create Story</span></a></li>
-											
+
 										</ul>
 									</div>
 								</li>
@@ -81,9 +81,10 @@
 									<ul id="bottom" class="slider__box js-slider" data-slider-config="{&quot;dots&quot;: true, &quot;infinite&quot;: true, &quot;speed&quot;: 500, &quot;fade&quot;: false, &quot;cssEase&quot;: &quot;ease&quot;, &quot;adaptiveHeight&quot;: false, &quot;lazyLoad&quot;: &quot;ondemand&quot;}">
 										<li v-for="(value, name, index) in storybook['pages']" class="slider__item">
 											<div class="posts-01__wrapper">
-												<div class="posts-01__item">
+													<div class="posts-01__item">
+														<div class="posts-01__img_box">
 													<!--<div class="posts-01__img_box"></div>-->
-														<img :src="value['image']" alt="" class="posts-01__img">
+														<img :src="value['image']" alt="" class="posts-01__img"></div>
 												</div>
 												<div class="posts-01__item">
 														<div class="posts-01__text">

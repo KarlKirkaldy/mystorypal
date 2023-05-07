@@ -125,16 +125,16 @@
 
 
 
-                 async getTasks(){
-                     axios({
-                       url: this.baseURL+'fetch',
-                       method: 'get'
-                     })
-                     .then(res => {
-                       this.results = res.data.results
-                     })
-
-                 },
+                 // async getTasks(){
+                 //     axios({
+                 //       url: this.baseURL+'fetch',
+                 //       method: 'get'
+                 //     })
+                 //     .then(res => {
+                 //       this.results = res.data.results
+                 //     })
+                 //
+                 // },
 
 
                   editEmail(id, name, subject, email_prompt, result, type){
@@ -209,6 +209,6 @@
          },
              mounted: function(){
                this.getStories()
-               this.getTasks()
+               //this.getTasks()
              }
          })

@@ -1,125 +1,136 @@
 from flask_session import Session
 from flask import *
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
-from flask_cors import CORS
+#from flask_cors import CORS
 import sqlite3
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import InputRequired, Length, ValidationError
 from datetime import datetime
 import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt
 from json import dumps
 import io
 import json
 import os
-import openai
-from flask_pymongo import PyMongo
+import pytz
+from dateutil import parser
+from langchain import OpenAI, ConversationChain, LLMChain, PromptTemplate
+from langchain.memory import ConversationBufferWindowMemory
 from bson import ObjectId
-
-
-
-DEBUG = True
-global dbfilename
-dbfilename = 'instance/database.db'
-global RESULTS_TABLE
-RESULTS_TABLE = "results_table"
-global JOBDESCS_TABLE
-JOBDESCS_TABLE = "jobdescs_table"
-global TEMPLATES_TABLE
-TEMPLATES_TABLE = "templates_table"
-global PROMPTS
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Flask, render_template, redirect, url_for, request
+from flask_sqlalchemy import SQLAlchemy
+from flask_security import UserMixin, RoleMixin, roles_accepted, Security, SQLAlchemySessionUserDatastore
+import string
+import random
+from flask_login import LoginManager, login_manager, login_user
+from flask_pymongo import PyMongo
+import openai
 
 app = Flask(__name__)
-CORS(app, resources={r'/*': {'origins': '*'}})
-
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///database.sqlite3"
+app.config['SECRET_KEY'] = 'MY_SECRET'
+app.config['SECURITY_PASSWORD_SALT'] = "MY_SECRET"
+app.config['SECURITY_REGISTERABLE'] = True
+app.config['SECURITY_SEND_REGISTER_EMAIL'] = False
 
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['SECRET_KEY'] = 'thisisasecretkey'
 
 app.config['MONGO_URI'] = "mongodb+srv://kbkirkaldy35:zonolite35@cluster0.fsnfxtf.mongodb.net/kbkirkaldydb?retryWrites=true&w=majority"
 app.config['CORS_Headers'] = 'Content-Type'
 
 mongo = PyMongo(app)
 mongodb = mongo.db
+#CORS(app, resources={r'/*': {'origins': '*'}})
 
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
+db = SQLAlchemy()
+db.init_app(app)
+app.app_context().push()
 
-
-#os.environ['OPENAI_KEY'] 
-
-
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'signin'
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-
-#source: official flask_login documentation
+roles_users = db.Table('roles_users',
+        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
+        db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
 
 class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(36), nullable=False, unique=True)
-    password = db.Column(db.String(14), nullable=False)
-    first_name = db.Column(db.String(20), nullable=False)
-    last_name = db.Column(db.String(20), nullable=False)
+    __tablename__ = 'user'
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    email = db.Column(db.String, unique=True)
+    password = db.Column(db.String(255), nullable=False, server_default='')
+    active = db.Column(db.Boolean())
+    # backreferences the user_id from roles_users table
+    #roles = db.relationship('Role', secondary=roles_users, backref='roled')
+    fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
 
+class Role(db.Model, RoleMixin):
+    __tablename__ = 'role'
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(80), unique=True)
 
-class RegisterForm(FlaskForm):
-    username = StringField(validators=[InputRequired(), Length(min=8, max=36)], render_kw={"placeholder": "Email"})
-    first_name = StringField(validators=[InputRequired(), Length(min=1, max=20)], render_kw={"placeholder": "First Name"})
-    last_name = StringField(validators=[InputRequired(), Length(min=1, max=20)], render_kw={"placeholder": "Last Name"})
-    password = PasswordField(validators=[InputRequired(), Length(min=8, max=14)], render_kw={"placeholder": "Password"})
-    submit = SubmitField('Sign up')
-    def validate_username(self, username):
-        if User.query.filter_by(username=username.data).first():
-            raise ValidationError(
-                'Username already exists!')
+# creates all database tables
+#@app.before_first_request
+if False:#def create_tables():
+    db.create_all()
 
-
-class LoginForm(FlaskForm):
-    username = StringField(validators=[InputRequired(), Length(min=8, max=36)], render_kw={"placeholder": "Email"})
-    password = PasswordField(validators=[InputRequired(), Length(min=8, max=14)], render_kw={"placeholder": "Password"})
-    submit = SubmitField('Sign in')
-
+user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
+security = Security(app, user_datastore)
 
 @app.route('/')
+# defining function index which returns the rendered html code
+# for our home page
 def home():
-    return render_template('home.html')
+    return render_template("home.html")
 
-
-@app.route('/signin', methods=['GET', 'POST'])
-def signin():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user:
-            if bcrypt.check_password_hash(user.password, form.password.data):
-                login_user(user)
-                print("logged in as", user.username)
-                session['username'] = user.username
-                return redirect(url_for('kanbanhome', username=user.username))
-    return render_template('signin.html', form=form)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    form = RegisterForm()
-    if form.validate_on_submit():
-        db.session.add(User(username=form.username.data, first_name=form.first_name.data, last_name=form.last_name.data, password=bcrypt.generate_password_hash(form.password.data)))
+    msg=""
+    logout_user()
+    if request.method == 'POST':
+        user = User.query.filter_by(email=request.form['email']).first()
+        msg=""
+        if user:
+            msg="User already exist"
+            return render_template('signup.html', msg=msg)
+
+        random_string = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(16))
+        user = User(email=request.form['email'], fs_uniquifier=random_string, active=1, password=request.form['password'])
+
+        # store the role
+        #role = Role.query.filter_by(id=request.form['options']).first()
+        #user.roles.append(role)
+
+        # commit the changes to database
+        db.session.add(user)
         db.session.commit()
-        return redirect(url_for('signin'))
-    return render_template('signup.html', form=form)
+
+        login_user(user)
+        return redirect(url_for('kanbanhome'))
+
+    else:
+        return render_template("signup.html", msg=msg)
+
+
+@app.route('/signin', methods=['GET', 'POST'])
+def signin():
+    msg=""
+    logout_user()
+    if request.method == 'POST':
+        user = User.query.filter_by(email=request.form['email']).first()
+        if user:
+            if  user.password == request.form['password']:
+                login_user(user)
+                session['username'] = user.email
+                return redirect(url_for('kanbanhome'))
+            else:
+                msg="Wrong password"
+
+        else:
+            msg="User doesn't exist"
+        return render_template('signin.html', msg=msg)
+
+    else:
+        return render_template("signin.html", msg=msg)
 
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -127,7 +138,6 @@ def signup():
 def logout():
     logout_user()
     return redirect(url_for('signin'))
-
 
 
 def generate_image(prompt):
