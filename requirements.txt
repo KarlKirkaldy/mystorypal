@@ -6,7 +6,6 @@ Flask-Login==0.6.2
 Flask-Session
 Flask-PyMongo
 gunicorn==20.1.0
-bson
 bcrypt
 openai
 pandas
