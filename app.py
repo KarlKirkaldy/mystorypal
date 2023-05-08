@@ -18,7 +18,7 @@ from bson import ObjectId
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, render_template, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
-from flask_security import UserMixin, RoleMixin, roles_accepted, Security, SQLAlchemySessionUserDatastore
+from flask_security import UserMixin, RoleMixin, roles_accepted, Security, SQLAlchemySessionUserDatastore, auth_required
 import string
 import random
 from flask_login import LoginManager, login_manager, login_user
@@ -134,7 +134,7 @@ def signin():
 
 
 @app.route('/logout', methods=['GET', 'POST'])
-@login_required
+@auth_required()
 def logout():
     logout_user()
     return redirect(url_for('signin'))
@@ -182,13 +182,13 @@ def GPT3call(prompt):
 
 
 @app.route('/kanban')
-@login_required
+@auth_required()
 def kanbanhome():
     return render_template("index.html")#, status='success', tasksjin=taskslist, listsjin=listslist)
 
 
 @app.route('/write_intro_email', methods=['POST'])
-@login_required
+@auth_required()
 def write_intro_email():
     if request.method == 'POST':
         post_data = request.get_json(silent=True)
@@ -228,7 +228,7 @@ def write_intro_email():
 
 
 @app.route('/save', methods=['GET', 'POST'])
-@login_required
+@auth_required()
 def save():
     response_object = {'status': 'success'}
     if request.method == 'POST':
@@ -248,7 +248,7 @@ def save():
 
 
 @app.route('/history', methods=['GET', 'POST'])
-@login_required
+@auth_required()
 def history():
     return render_template("history.html")
 
@@ -256,7 +256,7 @@ def history():
 
 
 @app.route('/fetch_stories', methods=['GET'])
-@login_required
+@auth_required()
 def fetchdiscussion():
     try:
         print("FETCHING MONGODB DATA")
@@ -279,111 +279,8 @@ def fetchdiscussion():
     return result
 
 
-
-@app.route('/edit_task/<string:type>/<string:id>', methods=['GET', 'POST'])
-@login_required
-def edit(id, type):
-    with sqlite3.connect(dbfilename) as conn:
-        print("editing task with id: ", id)
-        cur = conn.cursor()
-        if type == "email": cur.execute(f"select * from {EMAILS_TABLE} WHERE id = '{id}' and username = '{session['username']}'")
-        elif type == "jobdesc": cur.execute(f"select * from {JOBDESCS_TABLE} WHERE id = '{id}' and username = '{session['username']}'")
-        elif type == "template": cur.execute(f"select * from {TEMPLATES_TABLE} WHERE id = '{id}' and username = '{session['username']}'")
-        row = cur.fetchone()
-        print('fetching task complete')
-    return jsonify({
-        'status': 'success',
-        'editmember': row
-    })
-
-
-@app.route('/update_task/<string:type>', methods=['GET', 'POST'])
-@login_required
-def update(type):
-    response_object = {'status': 'success'}
-    if request.method == 'POST':
-        with sqlite3.connect(dbfilename) as conn:
-            cur = conn.cursor()
-            post_data = request.get_json(silent=True)
-
-            if type == "email":
-                new_id = post_data.get('new_id')
-                new_name = post_data.get('new_name')
-                new_subject = post_data.get('new_subject')
-                new_email_prompt = post_data.get('new_email_prompt')
-                new_result = post_data.get('new_result')
-                print(new_id, new_name, new_subject, new_email_prompt, new_result)
-                cur.execute(f"update {EMAILS_TABLE} set name='{new_name}', subject='{new_subject}', email_prompt='{new_email_prompt}', result='{new_result}' where id='{new_id}'")
-
-            elif type == "jobdesc":
-                new_id = post_data.get('new_id')
-                new_job_title = post_data.get('new_job_title')
-                new_job_responsibilities = post_data.get('new_job_responsibilities')
-                new_job_requirements = post_data.get('new_job_requirements')
-                new_result = post_data.get('new_result')
-                print(new_id, new_job_title, new_job_responsibilities, new_job_requirements, new_result)
-                cur.execute(f"update {JOBDESCS_TABLE} set job_title='{new_job_title}', job_responsibilities='{new_job_responsibilities}', job_requirements='{new_job_requirements}', result='{new_result}' where id='{new_id}'")
-
-            elif type == "template":
-                new_id = post_data.get('new_id')
-                new_template_content = post_data.get('new_template_content')
-                print(new_id, new_template_content)
-                cur.execute(f"update {TEMPLATES_TABLE} set template_content='{new_template_content}' where id='{new_id}'")
-
-            conn.commit()
-            cur.close()
-            print("updated task")
-
-        response_object['message'] = "Successfully Updated"
-    return jsonify(response_object)
-
-
-@app.route('/delete_task/<string:id>', methods=['GET', 'POST'])
-@login_required
-def delete(id):
-    with sqlite3.connect(dbfilename) as conn:
-        print("deleting task with id", id)
-        cur = conn.cursor()
-        response_object = {'status': 'success'}
-        cur.execute(f"delete from {RESULTS_TABLE} where id='{id}'")
-        conn.commit()
-        cur.close()
-        print("deleted task", id)
-
-    response_object['message'] = "Successfully Deleted"
-    return jsonify(response_object)
-
-'''
-def export_a_task(type, id):
-    with sqlite3.connect(dbfilename) as conn:
-        print("exporting task with id", id)
-        cur = conn.cursor()
-        if type == "email":
-            cur.execute(f"select *  from {EMAILS_TABLE} where id='{id}'")
-            columns = ['id', 'name', 'subject', 'email_prompt', 'task_type', 'result', 'created_at', 'username']
-        row = cur.fetchall()
-        print("exported row is ", row)
-        df = pd.DataFrame(row, columns=columns)
-        taskexportfilename = str(row[0][1])+'.csv'
-        df.to_csv(taskexportfilename, index=False)
-        conn.commit()
-        cur.close()
-        print("exported task")
-
-        send_file("/"+taskexportfilename, as_attachment=True)
-'''
-
-
-@app.route('/export_task/<string:type>/<string:id>', methods=['GET', 'POST'])
-@login_required
-def export(type, id):
-    export_a_task(type, id)
-    response_object = {'status': 'success'}
-    response_object['message'] = "Successfully Exported"
-    return jsonify(response_object)
-
-
 @app.route('/fetch', methods=['GET'])
+@auth_required()
 def fetchkanban():
     with sqlite3.connect(dbfilename) as conn:
         cur = conn.cursor()
