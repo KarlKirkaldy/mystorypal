@@ -144,7 +144,7 @@ def generate_image(prompt):
     openai.api_key = os.environ['OPENAI_KEY']
     preprompt = "A children's storybook illustration for the following: "
 
-    try:
+    '''try:
         cause error
         response = openai.Image.create(
             prompt=preprompt+prompt,
@@ -152,7 +152,8 @@ def generate_image(prompt):
             size="256x256",
             response_format="url"
         )["data"][0]["url"]
-    except:
+    except:'''
+    if True:
         response = "https://images.app.goo.gl/9Dxu5L5LHm9k5ajf7"
     return response
 
