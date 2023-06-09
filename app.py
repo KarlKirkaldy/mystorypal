@@ -18,12 +18,12 @@ from bson import ObjectId
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, render_template, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
-from flask_security import UserMixin, RoleMixin, roles_accepted, Security, SQLAlchemySessionUserDatastore, auth_required
+from flask_security import UserMixin, RoleMixin, roles_accepted, Security, SQLAlchemySessionUserDatastore
 import string
 import random
 from flask_login import LoginManager, login_manager, login_user
 from flask_pymongo import PyMongo
-import openai
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///database.sqlite3"
@@ -36,16 +36,21 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+#CORS(app, resources={r'/*': {'origins': '*'}})
+
+
+db = SQLAlchemy()
+db.init_app(app)
+app.app_context().push()
+
+bcrypt = Bcrypt(app)
+
 app.config['MONGO_URI'] = "mongodb+srv://kbkirkaldy35:zonolite35@cluster0.fsnfxtf.mongodb.net/kbkirkaldydb?retryWrites=true&w=majority"
 app.config['CORS_Headers'] = 'Content-Type'
 
 mongo = PyMongo(app)
 mongodb = mongo.db
 #CORS(app, resources={r'/*': {'origins': '*'}})
-
-db = SQLAlchemy()
-db.init_app(app)
-app.app_context().push()
 
 roles_users = db.Table('roles_users',
         db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
@@ -90,11 +95,11 @@ def signup():
         user = User.query.filter_by(email=request.form['email']).first()
         msg=""
         if user:
-            msg="User already exist"
+            msg="User already exists"
             return render_template('signup.html', msg=msg)
 
         random_string = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(16))
-        user = User(email=request.form['email'], fs_uniquifier=random_string, active=1, password=request.form['password'])
+        user = User(name=request.form['name'], email=request.form['email'], interest=request.form['interest'], language=request.form['language'], fs_uniquifier=random_string, active=1, password=bcrypt.generate_password_hash(request.form['password']))
 
         # store the role
         #role = Role.query.filter_by(id=request.form['options']).first()
@@ -103,6 +108,9 @@ def signup():
         # commit the changes to database
         db.session.add(user)
         db.session.commit()
+
+
+        session['username'] = user.email
 
         login_user(user)
         return redirect(url_for('kanbanhome'))
@@ -118,9 +126,9 @@ def signin():
     if request.method == 'POST':
         user = User.query.filter_by(email=request.form['email']).first()
         if user:
-            if  user.password == request.form['password']:
-                login_user(user)
+            if bcrypt.check_password_hash(user.password, request.form['password']):#user.password == request.form['password']:
                 session['username'] = user.email
+                login_user(user)
                 return redirect(url_for('kanbanhome'))
             else:
                 msg="Wrong password"
@@ -304,4 +312,4 @@ def tospage():
     return render_template('terms-of-service.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
