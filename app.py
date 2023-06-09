@@ -24,6 +24,7 @@ import random
 from flask_login import LoginManager, login_manager, login_user
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
+import openai
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///database.sqlite3"
