@@ -145,7 +145,6 @@ def generate_image(prompt):
     preprompt = "A children's storybook illustration for the following: "
 
     try:
-        cause error
         response = openai.Image.create(
             prompt=preprompt+prompt,
             model="image-alpha-001",
