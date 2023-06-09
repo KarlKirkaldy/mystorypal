@@ -99,7 +99,7 @@ def signup():
             return render_template('signup.html', msg=msg)
 
         random_string = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(16))
-        user = User(name=request.form['name'], email=request.form['email'], interest=request.form['interest'], language=request.form['language'], fs_uniquifier=random_string, active=1, password=bcrypt.generate_password_hash(request.form['password']))
+        user = User(email=request.form['email'], fs_uniquifier=random_string, active=1, password=bcrypt.generate_password_hash(request.form['password']))
 
         # store the role
         #role = Role.query.filter_by(id=request.form['options']).first()
